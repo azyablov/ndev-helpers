@@ -159,10 +159,10 @@ def get_sros_elem_config(nfd: ncclient.manager.Manager, xml_filter: str = "", so
                          pprn: bool = False) -> etree._Element:
     """
     :param remove_blank_text: the same as etree.XMLParser remove_blank_text
-    :param nfd:
-    :param xml_filter: 
-    :param source: 
-    :param pprn: 
+    :param nfd: device manager
+    :param xml_filter: subtree filter, see RFC4741, sec. #6
+    :param source: source datastore
+    :param pprn: pretty print received raw data, should be activated to preform debug
     """
     def_xml_filter = """
               <configure xmlns="urn:nokia.com:sros:ns:yang:sr:conf">
@@ -173,9 +173,10 @@ def get_sros_elem_config(nfd: ncclient.manager.Manager, xml_filter: str = "", so
         response_xml = nfd.get_config(source=source, filter=('subtree', def_xml_filter))
     # Optionally print config
     if pprn:
-        print(20 * "=" + " XML config " + 20 * "=")
+        title = " Retrieved SROS XML config "
+        print(20 * "=" + title + 20 * "=")
         print(response_xml.data_xml)
-        print(52 * "=")
+        print(40 * "=" + len(title))
     # Parse config from the string
     xml_par = etree.XMLParser(ns_clean=True, recover=True, encoding='utf-8', remove_blank_text=remove_blank_text)
     return etree.fromstring(text=response_xml.data_xml.encode('utf-8'), parser=xml_par)
